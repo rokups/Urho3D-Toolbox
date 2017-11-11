@@ -22,9 +22,9 @@
 
 #include "ImGuiDock.h"
 #define IMGUI_DEFINE_PLACEMENT_NEW
-#include <ImGui/imgui_internal.h>
+#include <imgui/imgui_internal.h>
 #include <Urho3D/Core/StringUtils.h>
-#include <Urho3D/Core/Utils.h>
+#include <Utils.h>
 
 namespace ImGui
 {

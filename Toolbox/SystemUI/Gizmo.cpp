@@ -32,9 +32,9 @@
 #include <Urho3D/Graphics/AnimatedModel.h>
 #include <Urho3D/Graphics/DebugRenderer.h>
 #include <Urho3D/IO/Log.h>
-#include <Urho3D/SystemUI/SystemUI.h>
+#include "SystemUI/SystemUI.h"
 #include <Urho3D/Graphics/Light.h>
-#include <ImGui/imgui_internal.h>
+#include <imgui/imgui_internal.h>
 #include <ImGuizmo/ImGuizmo.h>
 #include "Gizmo.h"
 
@@ -269,7 +269,7 @@ void Gizmo::HandleAutoSelection()
         return;
 
     // Discard clicks when interacting with SystemUI
-    if (GetSystemUI()->IsAnyItemActive() || GetSystemUI()->IsAnyItemHovered())
+    if (GetSubsystem<SystemUI>()->IsAnyItemActive() || GetSubsystem<SystemUI>()->IsAnyItemHovered())
         return;
 
     // Discard clicks when gizmo is being manipulated

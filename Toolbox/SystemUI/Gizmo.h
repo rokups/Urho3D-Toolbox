@@ -24,7 +24,7 @@
 
 
 #include <Urho3D/Scene/Node.h>
-#include <ImGui/imgui.h>
+#include <imgui/imgui.h>
 
 
 namespace Urho3D

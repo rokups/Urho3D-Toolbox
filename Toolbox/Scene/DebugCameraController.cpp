@@ -52,7 +52,7 @@ void DebugCameraController::Update(float timeStep)
         return;
 
     // Do not move if interacting with UI controls
-    if (GetSystemUI()->IsAnyItemActive())
+    if (GetSubsystem<SystemUI>()->IsAnyItemActive())
         return;
 
     Input* input = GetInput();

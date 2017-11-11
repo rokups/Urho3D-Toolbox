@@ -22,7 +22,7 @@
 
 #include "ResourceBrowser.h"
 #include "ImGuiDock.h"
-#include <Urho3D/SystemUI/SystemUI.h>
+#include "SystemUI/SystemUI.h"
 #include <Urho3D/Core/Context.h>
 #include <Urho3D/Resource/ResourceCache.h>
 #include <Urho3D/IO/FileSystem.h>
@@ -119,8 +119,8 @@ bool ResourceBrowserWindow(String& selected, bool* open)
                 break;
             }
 
-            if (ui::IsItemHovered() && ui::IsMouseDragging() && !context->GetSystemUI()->HasDragData())
-                context->GetSystemUI()->SetDragData(state->path + item);
+            if (ui::IsItemHovered() && ui::IsMouseDragging() && !context->GetSubsystem<SystemUI>()->HasDragData())
+                context->GetSubsystem<SystemUI>()->SetDragData(state->path + item);
         }
     }
     ui::EndDock();

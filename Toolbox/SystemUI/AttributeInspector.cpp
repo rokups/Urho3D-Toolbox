@@ -20,7 +20,7 @@
 // THE SOFTWARE.
 //
 
-#include <Urho3D/SystemUI/SystemUI.h>
+#include <SystemUI/SystemUI.h>
 #include <Urho3D/Core/StringUtils.h>
 #include <Urho3D/Core/CoreEvents.h>
 #include <Urho3D/Scene/Serializable.h>
@@ -40,7 +40,7 @@
 #include "Widgets.h"
 
 #include <IconFontCppHeaders/IconsFontAwesome.h>
-#include <ImGui/imgui_internal.h>
+#include <imgui/imgui_internal.h>
 #include <Urho3D/Graphics/StaticModel.h>
 #include <Urho3D/Graphics/Octree.h>
 #include <Urho3D/Graphics/Graphics.h>
@@ -745,7 +745,7 @@ bool AttributeInspector::RenderResourceRef(StringHash type, const String& name, 
     {
         if (ui::DroppedOnItem())
         {
-            Variant dragData = GetSystemUI()->GetDragData();
+            Variant dragData = GetSubsystem<SystemUI>()->GetDragData();
 
             if (dragData.GetType() == VAR_STRING)
                 resource = GetCache()->GetResource(resourceType, dragData.GetString());

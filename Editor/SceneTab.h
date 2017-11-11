@@ -24,6 +24,7 @@
 
 
 #include <Urho3D/Urho3DAll.h>
+#include <Toolbox/SystemUI/SystemUI.h>
 #include <Toolbox/SystemUI/AttributeInspector.h>
 #include <Toolbox/SystemUI/Gizmo.h>
 #include <Toolbox/SystemUI/ImGuiDock.h>

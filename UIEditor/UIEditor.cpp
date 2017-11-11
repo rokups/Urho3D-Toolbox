@@ -37,19 +37,19 @@
 #include <Urho3D/Resource/ResourceCache.h>
 #include <Urho3D/Scene/Scene.h>
 #include <Urho3D/Scene/SceneEvents.h>
-#include <Urho3D/SystemUI/SystemUI.h>
 #include <Urho3D/UI/UI.h>
 #include <Urho3D/UI/Window.h>
-#include <Urho3D/Core/Utils.h>
 
 #include <tinyfiledialogs/tinyfiledialogs.h>
-#include <ImGui/imgui_internal.h>
 #include <IconFontCppHeaders/IconsFontAwesome.h>
 
 #include <unordered_map>
 
+#include <Toolbox/SystemUI/SystemUI.h>
+#include <imgui/imgui_internal.h>
 #include <Toolbox/SystemUI/AttributeInspector.h>
 #include <Toolbox/Common/UndoManager.h>
+#include <Toolbox/Utils.h>
 
 
 using namespace std::placeholders;
@@ -289,10 +289,16 @@ public:
         engineParameters_[EP_WINDOW_WIDTH] = 1920;
         engineParameters_[EP_LOG_LEVEL] = LOG_DEBUG;
         engineParameters_[EP_WINDOW_RESIZABLE] = true;
+        engineParameters_[EP_RESOURCE_PATHS] = "CoreData;Data;EditorData";
     }
 
     void Start() override
     {
+        Context::SetContext(context_);
+
+        context_->RegisterFactory<SystemUI>();
+        context_->RegisterSubsystem(new SystemUI(context_));
+
         rootElement_ = GetUI()->GetRoot();
         GetSubsystem<SystemUI>()->AddFont("Fonts/fontawesome-webfont.ttf", 0, {ICON_MIN_FA, ICON_MAX_FA, 0}, true);
 
@@ -322,7 +328,7 @@ public:
         SubscribeToEvent(E_ATTRIBUTEINSPECTOATTRIBUTE, std::bind(&UIEditor::AttributeCustomize, this, _2));
 
         // UI style
-        GetSystemUI()->ApplyStyleDefault(true, 1.0f);
+        GetSubsystem<SystemUI>()->ApplyStyleDefault(true, 1.0f);
         ui::GetStyle().WindowRounding = 3;
 
         // Arguments

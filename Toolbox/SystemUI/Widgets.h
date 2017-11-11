@@ -24,7 +24,7 @@
 
 
 #include <typeinfo>
-#include <ImGui/imgui.h>
+#include <imgui/imgui.h>
 
 
 namespace ImGui

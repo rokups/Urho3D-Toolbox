@@ -27,7 +27,7 @@
 #include <Urho3D/Graphics/Light.h>
 #include <Urho3D/Input/Input.h>
 #include <Urho3D/UI/UI.h>
-#include <Urho3D/SystemUI/SystemUI.h>
+#include "SystemUI/SystemUI.h"
 
 namespace Urho3D
 {

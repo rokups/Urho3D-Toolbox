@@ -23,7 +23,7 @@
 #pragma once
 
 
-#include <ImGui/imgui.h>
+#include <imgui/imgui.h>
 #include <Urho3D/Resource/XMLElement.h>
 
 namespace ImGui

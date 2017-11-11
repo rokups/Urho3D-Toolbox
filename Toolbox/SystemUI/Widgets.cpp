@@ -21,10 +21,10 @@
 //
 
 #include "Widgets.h"
-#include <ImGui/imgui_internal.h>
 #include <Urho3D/Core/Context.h>
-#include <Urho3D/SystemUI/SystemUI.h>
-#include <ThirdParty/SDL/include/SDL_scancode.h>
+#include <SDL/SDL_scancode.h>
+#include <imgui/imgui_internal.h>
+#include "SystemUI/SystemUI.h"
 
 
 namespace ImGui
@@ -137,7 +137,7 @@ int DoubleClickSelectable(const char* label, bool selected, ImGuiSelectableFlags
 bool DroppedOnItem()
 {
     auto context = Urho3D::Context::GetContext();
-    return ui::IsItemHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem) && context->GetSystemUI()->HasDragData() && !ui::IsMouseDown(0);
+    return ui::IsItemHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem) && context->GetSubsystem<Urho3D::SystemUI>()->HasDragData() && !ui::IsMouseDown(0);
 }
 
 bool CollapsingHeaderSimple(const char* label, ImGuiTreeNodeFlags flags)
@@ -194,6 +194,7 @@ bool MaskSelector(unsigned int* mask)
     auto style = ui::GetStyle();
     auto pos = ui::GetCursorPos();
 
+    ui::PushStyleVar(ImGuiStyleVar_FrameRounding, 0);
     for (auto row = 0; row < 2; row++)
     {
         for (auto col = 0; col < 16; col++)
@@ -228,6 +229,7 @@ bool MaskSelector(unsigned int* mask)
         if (row < 1)
             ui::SetCursorPos({pos.x, pos.y + ui::ScaleY(9)});
     }
+    ui::PopStyleVar();
 
     return modified;
 }

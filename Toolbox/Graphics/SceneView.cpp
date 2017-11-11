@@ -28,7 +28,7 @@
 #include <Urho3D/Graphics/DebugRenderer.h>
 #include <Urho3D/Graphics/Renderer.h>
 #include <Urho3D/Graphics/RenderPath.h>
-#include <Toolbox/Scene/DebugCameraController.h>
+#include "Scene/DebugCameraController.h"
 
 #include "SceneView.h"
 

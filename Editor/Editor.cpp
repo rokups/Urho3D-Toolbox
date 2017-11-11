@@ -23,7 +23,8 @@
 #include "Editor.h"
 #include "EditorEvents.h"
 #include "SceneTab.h"
-#include <ImGui/imgui_internal.h>
+#include "SceneSettings.h"
+#include <imgui/imgui_internal.h>
 #include <IconFontCppHeaders/IconsFontAwesome.h>
 #include <Toolbox/Toolbox.h>
 #include <Toolbox/SystemUI/ImGuiDock.h>
@@ -66,21 +67,31 @@ void Editor::Setup()
     engineParameters_[EP_WINDOW_WIDTH] = 1920;
     engineParameters_[EP_LOG_LEVEL] = LOG_DEBUG;
     engineParameters_[EP_WINDOW_RESIZABLE] = true;
+    engineParameters_[EP_RESOURCE_PATHS] = "CoreData;Data;EditorData";
 }
 
 void Editor::Start()
 {
+    Context::SetContext(context_);
+
+    context_->RegisterFactory<SystemUI>();
+    context_->RegisterSubsystem(new SystemUI(context_));
+
     GetInput()->SetMouseMode(MM_ABSOLUTE);
     GetInput()->SetMouseVisible(true);
+
     RegisterToolboxTypes(context_);
+
     context_->RegisterFactory<Editor>();
     context_->RegisterSubsystem(this);
 
-    GetSystemUI()->ApplyStyleDefault(true, 1.0f);
-    GetSystemUI()->AddFont("Fonts/fontawesome-webfont.ttf", 0, {ICON_MIN_FA, ICON_MAX_FA, 0}, true);
+    SceneSettings::RegisterObject(context_);
+
+    GetSubsystem<SystemUI>()->ApplyStyleDefault(true, 1.0f);
+    GetSubsystem<SystemUI>()->AddFont("Fonts/fontawesome-webfont.ttf", 0, {ICON_MIN_FA, ICON_MAX_FA, 0}, true);
     ui::GetStyle().WindowRounding = 3;
     // Disable imgui saving ui settings on it's own. These should be serialized to project file.
-    ui::GetIO().IniFilename = 0;
+    ui::GetIO().IniFilename = nullptr;
 
     GetCache()->SetAutoReloadResources(true);
 

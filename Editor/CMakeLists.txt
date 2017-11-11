@@ -20,12 +20,7 @@
 # THE SOFTWARE.
 #
 
-if (NOT URHO3D_SYSTEMUI)
-    return ()
-endif ()
-
-file (GLOB_RECURSE SOURCE_FILES *.cpp *.h *.hpp)
-add_executable (Editor WIN32 ${SOURCE_FILES})
-target_link_libraries (Editor Toolbox Urho3D)
-set_target_properties(Editor PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${DEST_BIN_DIR}")
-install(TARGETS Editor RUNTIME DESTINATION bin)
+set (TARGET_NAME Editor)
+define_source_files (RECURSE)
+setup_main_executable ()
+target_link_libraries(${TARGET_NAME} Toolbox tinyfiledialogs)

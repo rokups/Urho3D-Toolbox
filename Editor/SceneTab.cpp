@@ -24,7 +24,7 @@
 #include "EditorEvents.h"
 #include "SceneSettings.h"
 #include <Toolbox/Scene/DebugCameraController.h>
-#include <ImGui/imgui_internal.h>
+#include <imgui/imgui_internal.h>
 #include <ImGuizmo/ImGuizmo.h>
 #include <IconFontCppHeaders/IconsFontAwesome.h>
 #include <Toolbox/SystemUI/Widgets.h>

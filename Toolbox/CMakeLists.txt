@@ -20,14 +20,8 @@
 # THE SOFTWARE.
 #
 
-if (NOT URHO3D_SYSTEMUI)
-    return ()
-endif ()
-
-file (GLOB_RECURSE SOURCE_FILES *.cpp *.h *.hpp)
-add_library (Toolbox STATIC ${SOURCE_FILES})
-target_link_libraries (Toolbox Urho3D)
-target_include_directories(Toolbox PUBLIC ..)
-install(TARGETS Toolbox ARCHIVE DESTINATION lib)
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} DESTINATION ${DEST_INCLUDE_DIR}/Toolbox FILES_MATCHING PATTERN *.h)
-install_to_build_tree(Toolbox)
+set (TARGET_NAME Toolbox)
+define_source_files (RECURSE)
+setup_library ()
+target_link_libraries(${TARGET_NAME} IconFontCppHeaders imgui ImGuizmo)
+target_include_directories(${TARGET_NAME} PUBLIC .)

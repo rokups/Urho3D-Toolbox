@@ -20,13 +20,7 @@
 # THE SOFTWARE.
 #
 
-if (NOT URHO3D_SYSTEMUI)
-    return ()
-endif ()
-
-file (GLOB SOURCE_FILES *.cpp *.h)
-add_executable (AssetViewer WIN32 ${SOURCE_FILES})
-target_link_libraries(AssetViewer Toolbox Urho3D poco)
-set_target_properties(AssetViewer PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${DEST_BIN_DIR}")
-add_dependencies(AssetViewer AssetImporter)
-install(TARGETS AssetViewer RUNTIME DESTINATION bin)
+set (TARGET_NAME AssetViewer)
+define_source_files (RECURSE)
+setup_main_executable ()
+target_link_libraries(${TARGET_NAME} Toolbox)
