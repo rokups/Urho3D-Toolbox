@@ -52,7 +52,7 @@ bool ResourceBrowserWindow(String& selected, bool* open)
         Vector<String> mergedDirs;
         Vector<String> mergedFiles;
 
-        for (const auto& dir: context->GetCache()->GetResourceDirs())
+        for (const auto& dir: context->GetResourceCache()->GetResourceDirs())
         {
             Vector<String> items;
             fs->ScanDir(items, dir + state->path, "", SCAN_FILES, false);

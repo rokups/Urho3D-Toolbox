@@ -69,7 +69,7 @@ public:
 protected:
     /// Method mimicking Context attribute registration, required for using engine attribute macros for registering
     /// custom per-object attributes.
-    template <class T> AttributeHandle RegisterAttribute(const AttributeInfo& attr);
+    template <class T> AttributeInfo& RegisterAttribute(const AttributeInfo& attr);
 
     /// Flag which signals that attributes should be rebuilt.
     bool rebuild_ = true;

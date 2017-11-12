@@ -187,7 +187,7 @@ void SceneTab::LoadScene(const String& filePath)
 
     if (filePath.EndsWith(".xml", false))
     {
-        if (scene_->LoadXML(GetCache()->GetResource<XMLFile>(filePath)->GetRoot()))
+        if (scene_->LoadXML(GetResourceCache()->GetResource<XMLFile>(filePath)->GetRoot()))
         {
             path_ = filePath;
             CreateObjects();
@@ -197,7 +197,7 @@ void SceneTab::LoadScene(const String& filePath)
     }
     else if (filePath.EndsWith(".json", false))
     {
-        if (scene_->LoadJSON(GetCache()->GetResource<JSONFile>(filePath)->GetRoot()))
+        if (scene_->LoadJSON(GetResourceCache()->GetResource<JSONFile>(filePath)->GetRoot()))
         {
             path_ = filePath;
             CreateObjects();
@@ -212,7 +212,7 @@ void SceneTab::LoadScene(const String& filePath)
 bool SceneTab::SaveScene(const String& filePath)
 {
     auto resourcePath = filePath.Empty() ? path_ : filePath;
-    auto fullPath = GetCache()->GetResourceFileName(resourcePath);
+    auto fullPath = GetResourceCache()->GetResourceFileName(resourcePath);
     File file(context_, fullPath, FILE_WRITE);
     bool result = false;
 

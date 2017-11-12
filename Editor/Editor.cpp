@@ -93,7 +93,7 @@ void Editor::Start()
     // Disable imgui saving ui settings on it's own. These should be serialized to project file.
     ui::GetIO().IniFilename = nullptr;
 
-    GetCache()->SetAutoReloadResources(true);
+    GetResourceCache()->SetAutoReloadResources(true);
 
     SubscribeToEvent(E_UPDATE, std::bind(&Editor::OnUpdate, this, _2));
 
@@ -140,7 +140,7 @@ void Editor::LoadProject(const String& filePath)
 
     SharedPtr<XMLFile> xml;
     if (!IsAbsolutePath(filePath))
-        xml = GetCache()->GetResource<XMLFile>(filePath);
+        xml = GetResourceCache()->GetResource<XMLFile>(filePath);
 
     if (xml.Null())
     {
