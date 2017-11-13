@@ -86,7 +86,7 @@ SystemUI::SystemUI(Urho3D::Context* context)
     SubscribeToEvent(E_SCREENMODE, std::bind(&SystemUI::UpdateProjectionMatrix, this));
     SubscribeToEvent(E_INPUTEND, [&](StringHash, VariantMap&)
     {
-        float timeStep = GetTime()->GetTimeStep();
+        float timeStep = GetSubsystem<Time>()->GetTimeStep();
         ImGui::GetIO().DeltaTime = timeStep > 0.0f ? timeStep : 1.0f / 60.0f;
         ImGui::NewFrame();
         ImGuizmo::BeginFrame();
@@ -183,7 +183,7 @@ void SystemUI::OnRawEvent(VariantMap& args)
 
 void SystemUI::OnRenderDrawLists(ImDrawData* data)
 {
-    auto graphics = GetGraphics();
+    auto graphics = GetSubsystem<Graphics>();
     // Engine does not render when window is closed or device is lost
     assert(graphics && graphics->IsInitialized() && !graphics->IsDeviceLost());
 
@@ -362,7 +362,7 @@ void SystemUI::SetScale(Vector3 scale)
     auto& style = ui::GetStyle();
 
     if (scale == Vector3::ZERO)
-        scale = GetGraphics()->GetDisplayDPI() / 96.f;
+        scale = GetSubsystem<Graphics>()->GetDisplayDPI() / 96.f;
 
     io.DisplayFramebufferScale = {scale.x_, scale.y_};
     fontScale_ = scale.z_;

@@ -61,7 +61,7 @@ void Editor::Setup()
     engineParameters_[EP_WINDOW_TITLE] = GetTypeName();
     engineParameters_[EP_HEADLESS] = false;
     engineParameters_[EP_RESOURCE_PREFIX_PATHS] =
-        context_->GetFileSystem()->GetProgramDir() + ";;..;../share/Urho3D/Resources";
+        GetSubsystem<FileSystem>()->GetProgramDir() + ";;..;../share/Urho3D/Resources";
     engineParameters_[EP_FULL_SCREEN] = false;
     engineParameters_[EP_WINDOW_HEIGHT] = 1080;
     engineParameters_[EP_WINDOW_WIDTH] = 1920;
@@ -72,13 +72,12 @@ void Editor::Setup()
 
 void Editor::Start()
 {
-    Context::SetContext(context_);
-
     context_->RegisterFactory<SystemUI>();
     context_->RegisterSubsystem(new SystemUI(context_));
 
-    GetInput()->SetMouseMode(MM_ABSOLUTE);
-    GetInput()->SetMouseVisible(true);
+    Input* input = GetSubsystem<Input>();
+    input->SetMouseMode(MM_ABSOLUTE);
+    input->SetMouseVisible(true);
 
     RegisterToolboxTypes(context_);
 
@@ -93,7 +92,7 @@ void Editor::Start()
     // Disable imgui saving ui settings on it's own. These should be serialized to project file.
     ui::GetIO().IniFilename = nullptr;
 
-    GetResourceCache()->SetAutoReloadResources(true);
+    GetSubsystem<ResourceCache>()->SetAutoReloadResources(true);
 
     SubscribeToEvent(E_UPDATE, std::bind(&Editor::OnUpdate, this, _2));
 
@@ -117,11 +116,12 @@ void Editor::SaveProject(const String& filePath)
     XMLElement root = xml->CreateRoot("project");
     root.SetAttribute("version", "0");
 
+    Graphics* graphics = GetSubsystem<Graphics>();
     auto window = root.CreateChild("window");
-    window.SetAttribute("width", ToString("%d", GetGraphics()->GetWidth()));
-    window.SetAttribute("height", ToString("%d", GetGraphics()->GetHeight()));
-    window.SetAttribute("x", ToString("%d", GetGraphics()->GetWindowPosition().x_));
-    window.SetAttribute("y", ToString("%d", GetGraphics()->GetWindowPosition().y_));
+    window.SetAttribute("width", ToString("%d", graphics->GetWidth()));
+    window.SetAttribute("height", ToString("%d", graphics->GetHeight()));
+    window.SetAttribute("x", ToString("%d", graphics->GetWindowPosition().x_));
+    window.SetAttribute("y", ToString("%d", graphics->GetWindowPosition().y_));
 
     auto scenes = root.CreateChild("scenes");
     for (auto& sceneTab: sceneTabs_)
@@ -140,7 +140,7 @@ void Editor::LoadProject(const String& filePath)
 
     SharedPtr<XMLFile> xml;
     if (!IsAbsolutePath(filePath))
-        xml = GetResourceCache()->GetResource<XMLFile>(filePath);
+        xml = GetSubsystem<ResourceCache>()->GetResource<XMLFile>(filePath);
 
     if (xml.Null())
     {
@@ -156,8 +156,9 @@ void Editor::LoadProject(const String& filePath)
         auto window = root.GetChild("window");
         if (window.NotNull())
         {
-            GetGraphics()->SetMode(ToInt(window.GetAttribute("width")), ToInt(window.GetAttribute("height")));
-            GetGraphics()->SetWindowPosition(ToInt(window.GetAttribute("x")), ToInt(window.GetAttribute("y")));
+            Graphics* graphics = GetSubsystem<Graphics>();
+            graphics->SetMode(ToInt(window.GetAttribute("width")), ToInt(window.GetAttribute("height")));
+            graphics->SetWindowPosition(ToInt(window.GetAttribute("x")), ToInt(window.GetAttribute("y")));
         }
 
         auto scenes = root.GetChild("scenes");

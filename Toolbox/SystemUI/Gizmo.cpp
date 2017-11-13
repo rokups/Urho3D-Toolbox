@@ -265,7 +265,7 @@ void Gizmo::HandleAutoSelection()
     ManipulateSelection(autoModeCamera_);
 
     // Discard clicks when interacting with UI
-    if (GetUI()->GetFocusElement() != nullptr)
+    if (GetSubsystem<UI>()->GetFocusElement() != nullptr)
         return;
 
     // Discard clicks when interacting with SystemUI
@@ -276,12 +276,13 @@ void Gizmo::HandleAutoSelection()
     if (IsActive())
         return;
 
-    if (GetInput()->GetMouseButtonPress(MOUSEB_LEFT))
+    Input* input = GetSubsystem<Input>();
+    if (input->GetMouseButtonPress(MOUSEB_LEFT))
     {
         UI* ui = GetSubsystem<UI>();
         IntVector2 pos = ui->GetCursorPosition();
         // Check the cursor is visible and there is no UI element in front of the cursor
-        if (!GetInput()->IsMouseVisible() || ui->GetElementAt(pos, true))
+        if (!input->IsMouseVisible() || ui->GetElementAt(pos, true))
             return;
 
         Graphics* graphics = GetSubsystem<Graphics>();
@@ -294,17 +295,17 @@ void Gizmo::HandleAutoSelection()
         if (results.Size())
         {
             WeakPtr<Node> clickNode(results[0].drawable_->GetNode());
-            if (!GetInput()->GetKeyDown(KEY_CTRL))
+            if (!input->GetKeyDown(KEY_CTRL))
                 nodeSelection_.Clear();
 
             ToggleSelection(clickNode);
         }
     }
 
-    if (GetInput()->GetKeyDown(KEY_SHIFT) && GetInput()->GetKeyPress(KEY_TAB))
+    if (input->GetKeyDown(KEY_SHIFT) && input->GetKeyPress(KEY_TAB))
         operation_ = static_cast<GizmoOperation>(((size_t)operation_ + 1) % GIZMOOP_MAX);
 
-    if (GetInput()->GetKeyDown(KEY_CTRL) && GetInput()->GetKeyPress(KEY_TAB))
+    if (input->GetKeyDown(KEY_CTRL) && input->GetKeyPress(KEY_TAB))
     {
         if (transformSpace_ == TS_WORLD)
             transformSpace_ = TS_LOCAL;

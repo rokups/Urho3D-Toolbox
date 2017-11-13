@@ -105,7 +105,7 @@ public:
         engineParameters_[EP_HEADLESS] = false;
         engineParameters_[EP_SOUND] = false;
         engineParameters_[EP_RESOURCE_PATHS] = "CoreData;EditorData";
-        engineParameters_[EP_RESOURCE_PREFIX_PATHS] = context_->GetFileSystem()->GetProgramDir() +
+        engineParameters_[EP_RESOURCE_PREFIX_PATHS] = GetSubsystem<FileSystem>()->GetProgramDir() +
                                                       ";;..;../share/Urho3D/Resources";
         engineParameters_[EP_WINDOW_RESIZABLE] = true;
 
@@ -114,13 +114,12 @@ public:
 
     void Start() override
     {
-        Context::SetContext(context_);
-
         context_->RegisterFactory<SystemUI>();
         context_->RegisterSubsystem(new SystemUI(context_));
 
-        GetInput()->SetMouseVisible(true);
-        GetInput()->SetMouseMode(MM_ABSOLUTE);
+        Input* input = GetSubsystem<Input>();
+        input->SetMouseVisible(true);
+        input->SetMouseMode(MM_ABSOLUTE);
 
         scene_ = new Scene(context_);
         scene_->CreateComponent<Octree>();
@@ -186,7 +185,8 @@ public:
                 input->SetMouseVisible(true);
         }
 
-        if (GetInput()->GetKeyPress(KEY_F1))
+        Input* input = GetSubsystem<Input>();
+        if (input->GetKeyPress(KEY_F1))
             showHelp_ = true;
 
 
@@ -215,7 +215,7 @@ public:
             ui::End();
         }
 
-        if (node_ && GetInput()->GetKeyDown(KEY_SHIFT))
+        if (node_ && input->GetKeyDown(KEY_SHIFT))
             gizmo_.Manipulate(camera_, parentNode_);
     }
 

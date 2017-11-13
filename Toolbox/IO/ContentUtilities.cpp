@@ -22,6 +22,7 @@
 
 #include <IconFontCppHeaders/IconsFontAwesome.h>
 #include <Urho3D/Urho3DAll.h>
+#include <Toolbox/SystemUI/SystemUI.h>
 #include "ContentUtilities.h"
 
 
@@ -88,10 +89,11 @@ String GetFileIcon(const String& fileName)
 
 ContentType GetContentType(const String& resourcePath)
 {
+    SystemUI* systemUI = static_cast<SystemUI*>(ui::GetIO().UserData);
     auto extension = GetExtension(resourcePath).ToLower();
     if (extension == ".xml")
     {
-        SharedPtr<XMLFile> xml(Context::GetContext()->GetResourceCache()->GetResource<XMLFile>(resourcePath));
+        SharedPtr<XMLFile> xml(systemUI->GetSubsystem<ResourceCache>()->GetResource<XMLFile>(resourcePath));
         auto rootElementName = xml->GetRoot().GetName();
         if (rootElementName == "scene")
             return CTYPE_SCENE;

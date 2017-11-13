@@ -103,7 +103,7 @@ public:
         int size = static_cast<int>(ui::GetWindowWidth() - ui::GetCursorPosX());
         SetSize({0, 0, size, size});
         ui::Image(texture_.Get(), ToImGui(rect_.Size()));
-        Input* input = camera_->GetInput();
+        Input* input = camera_->GetSubsystem<Input>();
         bool rightMouseButtonDown = input->GetMouseButtonDown(MOUSEB_RIGHT);
         if (ui::IsItemHovered())
         {
@@ -139,7 +139,7 @@ public:
     {
         auto model = node_->GetOrCreateComponent<StaticModel>();
 
-        model->SetModel(GetResourceCache()->GetResource<Model>(ToString("Models/%s.mdl", figures_[figureIndex_])));
+        model->SetModel(GetSubsystem<ResourceCache>()->GetResource<Model>(ToString("Models/%s.mdl", figures_[figureIndex_])));
         model->SetMaterial(material_);
         auto bb = model->GetBoundingBox();
         auto scale = 1.f / Max(bb.Size().x_, Max(bb.Size().y_, bb.Size().z_));
@@ -159,7 +159,7 @@ public:
             return;
 
         mouseGrabbed_ = enable;
-        Input* input = camera_->GetInput();
+        Input* input = camera_->GetSubsystem<Input>();
         if (enable && input->IsMouseVisible())
             input->SetMouseVisible(false);
         else if (!enable && !input->IsMouseVisible())
@@ -741,6 +741,7 @@ void AttributeInspector::NextColumn()
 
 bool AttributeInspector::RenderResourceRef(StringHash type, const String& name, String& result, bool expanded)
 {
+    ResourceCache* cache = GetSubsystem<ResourceCache>();
     auto handleDragAndDrop = [&](StringHash resourceType, SharedPtr<Resource>& resource)
     {
         if (ui::DroppedOnItem())
@@ -748,9 +749,9 @@ bool AttributeInspector::RenderResourceRef(StringHash type, const String& name, 
             Variant dragData = GetSubsystem<SystemUI>()->GetDragData();
 
             if (dragData.GetType() == VAR_STRING)
-                resource = GetResourceCache()->GetResource(resourceType, dragData.GetString());
+                resource = cache->GetResource(resourceType, dragData.GetString());
             else if (dragData.GetType() == VAR_RESOURCEREF)
-                resource = GetResourceCache()->GetResource(resourceType, dragData.GetResourceRef().name_);
+                resource = cache->GetResource(resourceType, dragData.GetResourceRef().name_);
 
             return resource.NotNull();
         }
@@ -781,7 +782,7 @@ bool AttributeInspector::RenderResourceRef(StringHash type, const String& name, 
 
     if (type == Material::GetTypeStatic())
     {
-        Material* material = GetResourceCache()->GetResource<Material>(name);
+        Material* material = cache->GetResource<Material>(name);
         if (material == nullptr)
             return false;
 
@@ -803,7 +804,7 @@ bool AttributeInspector::RenderResourceRef(StringHash type, const String& name, 
         if (ui::Combo("###cull", &valueInt, cullModeNames, (int)MAX_CULLMODES))
         {
             material->SetCullMode(static_cast<CullMode>(valueInt));
-            material->SaveFile(GetResourceCache()->GetResourceFileName(material->GetName()));
+            material->SaveFile(cache->GetResourceFileName(material->GetName()));
         }
 
         ui::TextUnformatted("Shadow Cull");
@@ -812,7 +813,7 @@ bool AttributeInspector::RenderResourceRef(StringHash type, const String& name, 
         if (ui::Combo("###shadowCull", &valueInt, cullModeNames, (int)MAX_CULLMODES))
         {
             material->SetShadowCullMode(static_cast<CullMode>(valueInt));
-            material->SaveFile(GetResourceCache()->GetResourceFileName(material->GetName()));
+            material->SaveFile(cache->GetResourceFileName(material->GetName()));
         }
 
         ui::TextUnformatted("Fill");
@@ -821,7 +822,7 @@ bool AttributeInspector::RenderResourceRef(StringHash type, const String& name, 
         if (ui::Combo("###fill", &valueInt, fillModeNames, (int)MAX_FILLMODES))
         {
             material->SetFillMode(static_cast<FillMode>(valueInt));
-            material->SaveFile(GetResourceCache()->GetResourceFileName(material->GetName()));
+            material->SaveFile(cache->GetResourceFileName(material->GetName()));
         }
 
         auto bias = material->GetDepthBias();
@@ -830,7 +831,7 @@ bool AttributeInspector::RenderResourceRef(StringHash type, const String& name, 
         if (ui::DragFloat("###constantBias_", &bias.constantBias_, 0.1f, -1, 1))
         {
             material->SetDepthBias(bias);
-            material->SaveFile(GetResourceCache()->GetResourceFileName(material->GetName()));
+            material->SaveFile(cache->GetResourceFileName(material->GetName()));
         }
 
         ui::TextUnformatted("Slope Scaled Bias");
@@ -838,7 +839,7 @@ bool AttributeInspector::RenderResourceRef(StringHash type, const String& name, 
         if (ui::DragFloat("###slopeScaledBias_", &bias.slopeScaledBias_, 1, -16, 16))
         {
             material->SetDepthBias(bias);
-            material->SaveFile(GetResourceCache()->GetResourceFileName(material->GetName()));
+            material->SaveFile(cache->GetResourceFileName(material->GetName()));
         }
 
         ui::TextUnformatted("Normal Offset");
@@ -846,7 +847,7 @@ bool AttributeInspector::RenderResourceRef(StringHash type, const String& name, 
         if (ui::DragFloat("###normalOffset_", &bias.normalOffset_, 1, 0))
         {
             material->SetDepthBias(bias);
-            material->SaveFile(GetResourceCache()->GetResourceFileName(material->GetName()));
+            material->SaveFile(cache->GetResourceFileName(material->GetName()));
         }
 
         ui::TextUnformatted("Alpha To Coverage");
@@ -855,7 +856,7 @@ bool AttributeInspector::RenderResourceRef(StringHash type, const String& name, 
         if (ui::Checkbox("###alphaToCoverage_", &valueBool))
         {
             material->SetAlphaToCoverage(valueBool);
-            material->SaveFile(GetResourceCache()->GetResourceFileName(material->GetName()));
+            material->SaveFile(cache->GetResourceFileName(material->GetName()));
         }
 
         ui::TextUnformatted("Line Anti-Alias");
@@ -864,7 +865,7 @@ bool AttributeInspector::RenderResourceRef(StringHash type, const String& name, 
         if (ui::Checkbox("###lineAntiAlias_", &valueBool))
         {
             material->SetLineAntiAlias(valueBool);
-            material->SaveFile(GetResourceCache()->GetResourceFileName(material->GetName()));
+            material->SaveFile(cache->GetResourceFileName(material->GetName()));
         }
 
         ui::TextUnformatted("Occlusion");
@@ -873,7 +874,7 @@ bool AttributeInspector::RenderResourceRef(StringHash type, const String& name, 
         if (ui::Checkbox("###occlusion_", &valueBool))
         {
             material->SetOcclusion(valueBool);
-            material->SaveFile(GetResourceCache()->GetResourceFileName(material->GetName()));
+            material->SaveFile(cache->GetResourceFileName(material->GetName()));
         }
 
         ui::TextUnformatted("Render Order");
@@ -882,7 +883,7 @@ bool AttributeInspector::RenderResourceRef(StringHash type, const String& name, 
         if (ui::DragInt("###renderOrder_", &valueInt, 1, 0, 0xFF))
         {
             material->SetRenderOrder(static_cast<unsigned char>(valueInt));
-            material->SaveFile(GetResourceCache()->GetResourceFileName(material->GetName()));
+            material->SaveFile(cache->GetResourceFileName(material->GetName()));
         }
 
         for (unsigned i = 0; i < material->GetNumTechniques(); i++)
@@ -902,7 +903,7 @@ bool AttributeInspector::RenderResourceRef(StringHash type, const String& name, 
             if (handleDragAndDrop(Technique::GetTypeStatic(), resource))
             {
                 material->SetTechnique(i, DynamicCast<Technique>(resource), tech.qualityLevel_, tech.lodDistance_);
-                material->SaveFile(GetResourceCache()->GetResourceFileName(material->GetName()));
+                material->SaveFile(cache->GetResourceFileName(material->GetName()));
                 resource.Reset();
             }
 
@@ -914,7 +915,7 @@ bool AttributeInspector::RenderResourceRef(StringHash type, const String& name, 
                     for (auto j = i + 1; j < material->GetNumTechniques(); j++)
                         material->SetTechnique(j - 1, material->GetTechnique(j));
                     material->SetNumTechniques(material->GetNumTechniques() - 1);
-                    material->SaveFile(GetResourceCache()->GetResourceFileName(material->GetName()));
+                    material->SaveFile(cache->GetResourceFileName(material->GetName()));
                     ui::PopID();
                     break;
                 }
@@ -927,12 +928,12 @@ bool AttributeInspector::RenderResourceRef(StringHash type, const String& name, 
                 ui::TextUnformatted("LOD Distance");
                 NextColumn();
                 if (ui::DragFloat("###lodDistance_", &tech.lodDistance_))
-                    material->SaveFile(GetResourceCache()->GetResourceFileName(material->GetName()));
+                    material->SaveFile(cache->GetResourceFileName(material->GetName()));
 
                 ui::TextUnformatted("Quality");
                 NextColumn();
                 if (ui::DragInt("###qualityLevel_", &tech.qualityLevel_))
-                    material->SaveFile(GetResourceCache()->GetResourceFileName(material->GetName()));
+                    material->SaveFile(cache->GetResourceFileName(material->GetName()));
 
                 ui::Unindent(attributeIndentLevel);
             }
@@ -945,7 +946,7 @@ bool AttributeInspector::RenderResourceRef(StringHash type, const String& name, 
         {
             material->SetNumTechniques(material->GetNumTechniques() + 1);
             material->SetTechnique(material->GetNumTechniques() - 1, dynamic_cast<Technique*>(resource.Get()));
-            material->SaveFile(GetResourceCache()->GetResourceFileName(material->GetName()));
+            material->SaveFile(cache->GetResourceFileName(material->GetName()));
         }
         ui::Unindent(attributeIndentLevel);
     }

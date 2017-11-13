@@ -128,12 +128,12 @@ public:
                                                    ui::GetColorU32(ToImGui(Color::RED)));
         }
 
-        return rect.IsInside(context_->GetInput()->GetMousePosition()) == INSIDE;
+        return rect.IsInside(GetSubsystem<Input>()->GetMousePosition()) == INSIDE;
     }
 
     bool OnUpdate(IntRect screenRect, IntRect& delta, TransformSelectorFlags flags = TSF_NONE)
     {
-        auto input = context_->GetInput();
+        auto input = GetSubsystem<Input>();
         bool wasNotMoving = resizing_ == RESIZE_NONE;
         bool can_resize_horizontal = !(flags & TSF_NOHORIZONTAL);
         bool can_resize_vertical = !(flags & TSF_NOVERTICAL);
@@ -283,7 +283,7 @@ public:
         engineParameters_[EP_WINDOW_TITLE] = GetTypeName();
         engineParameters_[EP_HEADLESS] = false;
         engineParameters_[EP_RESOURCE_PREFIX_PATHS] =
-            context_->GetFileSystem()->GetProgramDir() + ";;..;../share/Urho3D/Resources";
+            GetSubsystem<FileSystem>()->GetProgramDir() + ";;..;../share/Urho3D/Resources";
         engineParameters_[EP_FULL_SCREEN] = false;
         engineParameters_[EP_WINDOW_HEIGHT] = 1080;
         engineParameters_[EP_WINDOW_WIDTH] = 1920;
@@ -294,16 +294,15 @@ public:
 
     void Start() override
     {
-        Context::SetContext(context_);
-
         context_->RegisterFactory<SystemUI>();
         context_->RegisterSubsystem(new SystemUI(context_));
 
-        rootElement_ = GetUI()->GetRoot();
+        rootElement_ = GetSubsystem<UI>()->GetRoot();
         GetSubsystem<SystemUI>()->AddFont("Fonts/fontawesome-webfont.ttf", 0, {ICON_MIN_FA, ICON_MAX_FA, 0}, true);
 
-        GetInput()->SetMouseMode(MM_FREE);
-        GetInput()->SetMouseVisible(true);
+        Input* input = GetSubsystem<Input>();
+        input->SetMouseMode(MM_FREE);
+        input->SetMouseVisible(true);
 
         // Background color
         scene_ = new Scene(context_);
@@ -532,8 +531,9 @@ public:
         const auto panelFlags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse |
                                 ImGuiWindowFlags_NoTitleBar;
 
-        auto windowHeight = (float)GetGraphics()->GetHeight();
-        auto windowWidth = (float)GetGraphics()->GetWidth();
+        Graphics* graphics = GetSubsystem<Graphics>();
+        auto windowHeight = (float)graphics->GetHeight();
+        auto windowWidth = (float)graphics->GetWidth();
         IntVector2 rootPos(5, static_cast<int>(5 + menuBarHeight));
         IntVector2 rootSize(0, static_cast<int>(windowHeight) - 20);
 
@@ -574,7 +574,7 @@ public:
         // Used for rendering various lines on top of UrhoUI.
         const auto backgroundTextWindowFlags = ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar |
                                                ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoInputs;
-        ui::SetNextWindowSize(ToImGui(context_->GetGraphics()->GetSize()), ImGuiCond_Always);
+        ui::SetNextWindowSize(ToImGui(graphics->GetSize()), ImGuiCond_Always);
         ui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
         ui::PushStyleColor(ImGuiCol_WindowBg, 0);
         if (ui::Begin("Background Window", nullptr, backgroundTextWindowFlags))
@@ -606,12 +606,12 @@ public:
         ui::PopStyleColor();
         // Background window end
 
-        auto input = context_->GetInput();
+        auto input = GetSubsystem<Input>();
         if (!uiElementTransform_->IsActive() && input->GetMouseButtonPress(MOUSEB_LEFT) ||
             input->GetMouseButtonPress(MOUSEB_RIGHT))
         {
             auto pos = input->GetMousePosition();
-            auto clicked = GetUI()->GetElementAt(pos, false);
+            auto clicked = GetSubsystem<UI>()->GetElementAt(pos, false);
             if (!clicked && rootElement_->GetCombinedScreenRect().IsInside(pos) == INSIDE && !ui::IsAnyWindowHovered())
                 clicked = rootElement_;
 
@@ -797,7 +797,7 @@ public:
             filePath = GetParentPath(filePath);
             for (const auto& dataDirectory: dataDirectories)
             {
-                if (GetFileSystem()->DirExists(filePath + dataDirectory))
+                if (GetSubsystem<FileSystem>()->DirExists(filePath + dataDirectory))
                     return filePath;
             }
         }
@@ -1029,7 +1029,7 @@ public:
             window_name += " - " + GetBaseName(currentFilePath_);
         if (!currentStyleFilePath_.Empty())
             window_name += " - " + GetBaseName(currentStyleFilePath_);
-        context_->GetGraphics()->SetWindowTitle(window_name);
+        GetSubsystem<Graphics>()->SetWindowTitle(window_name);
     }
 
     void SelectItem(UIElement* current)
@@ -1046,7 +1046,7 @@ public:
     UIElement* GetSelected() const
     {
         // Can not select root widget
-        if (selectedElement_ == GetUI()->GetRoot())
+        if (selectedElement_ == GetSubsystem<UI>()->GetRoot())
             return nullptr;
 
         return selectedElement_;

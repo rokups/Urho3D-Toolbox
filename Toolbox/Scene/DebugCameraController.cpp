@@ -48,14 +48,14 @@ void DebugCameraController::Stop()
 void DebugCameraController::Update(float timeStep)
 {
     // Do not move if the UI has a focused element
-    if (GetUI()->GetFocusElement())
+    if (GetSubsystem<UI>()->GetFocusElement())
         return;
 
     // Do not move if interacting with UI controls
     if (GetSubsystem<SystemUI>()->IsAnyItemActive())
         return;
 
-    Input* input = GetInput();
+    Input* input = GetSubsystem<Input>();
 
     // Movement speed as world units per second
     float moveSpeed_ = speed_;

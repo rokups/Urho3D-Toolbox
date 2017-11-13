@@ -271,7 +271,7 @@ void UndoManager::Track(UndoableState* state)
     stack_.Resize(++index_);
     // Tracks new state.
     stack_.Push(SharedPtr<UndoableState>(state));
-    context_->GetLog()->Write(LOG_DEBUG, ToString("UNDO: Save %d: %s", index_, state->ToString().CString()));
+    GetSubsystem<Log>()->Write(LOG_DEBUG, ToString("UNDO: Save %d: %s", index_, state->ToString().CString()));
 }
 
 }

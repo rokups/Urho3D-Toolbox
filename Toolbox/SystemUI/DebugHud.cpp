@@ -75,7 +75,8 @@ void DebugHud::SetExtents(const IntVector2& position, IntVector2 size)
 {
     if (size == IntVector2::ZERO)
     {
-        size = {GetGraphics()->GetWidth(), GetGraphics()->GetHeight()};
+        Graphics* graphics = GetSubsystem<Graphics>();
+        size = {graphics->GetWidth(), graphics->GetHeight()};
         if (!HasSubscribedToEvent(E_SCREENMODE))
             SubscribeToEvent(E_SCREENMODE, std::bind(&DebugHud::SetExtents, this, IntVector2::ZERO, IntVector2::ZERO));
     }
@@ -206,7 +207,7 @@ void DebugHud::RenderUi(VariantMap& eventData)
             // Update stats regardless of them being shown.
             if (fpsTimer_.GetMSec(false) > FPS_UPDATE_INTERVAL_MS)
             {
-                fps_ = static_cast<unsigned int>(Round(GetTime()->GetFramesPerSecond()));
+                fps_ = static_cast<unsigned int>(Round(GetSubsystem<Time>()->GetFramesPerSecond()));
                 fpsTimer_.Reset();
             }
 
@@ -219,8 +220,8 @@ void DebugHud::RenderUi(VariantMap& eventData)
             }
             else
             {
-                primitives = GetRenderer()->GetNumPrimitives();
-                batches = GetRenderer()->GetNumBatches();
+                primitives = renderer->GetNumPrimitives();
+                batches = renderer->GetNumBatches();
             }
 
             ui::SetCursorPos({posStats_.x_, posStats_.y_});

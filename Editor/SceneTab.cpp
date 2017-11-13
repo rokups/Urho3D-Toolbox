@@ -64,8 +64,9 @@ bool SceneTab::RenderWindow()
     bool open = true;
     auto& style = ui::GetStyle();
 
-    if (GetInput()->IsMouseVisible())
-        lastMousePosition_ = GetInput()->GetMousePosition();
+    Input* input = GetSubsystem<Input>();
+    if (input->IsMouseVisible())
+        lastMousePosition_ = input->GetMousePosition();
 
     ui::SetNextDockPos(placeAfter_.CString(), placePosition_, ImGuiCond_FirstUseEver);
     if (ui::BeginDock(uniqueTitle_.CString(), &open, windowFlags_))
@@ -84,7 +85,7 @@ bool SceneTab::RenderWindow()
 
         if (rect_.IsInside(lastMousePosition_) == INSIDE)
         {
-            if (!ui::IsWindowFocused() && ui::IsItemHovered() && GetInput()->GetMouseButtonDown(MOUSEB_RIGHT))
+            if (!ui::IsWindowFocused() && ui::IsItemHovered() && input->GetMouseButtonDown(MOUSEB_RIGHT))
                 ui::SetWindowFocus();
 
             if (ui::IsDockActive())
@@ -100,7 +101,7 @@ bool SceneTab::RenderWindow()
         gizmo_.ManipulateSelection(GetCamera());
 
         // Update scene view rect according to window position
-        // if (!GetInput()->GetMouseButtonDown(MOUSEB_LEFT))
+        // if (!input->GetMouseButtonDown(MOUSEB_LEFT))
         {
             auto titlebarHeight = ui::GetCurrentContext()->CurrentWindow->TitleBarHeight();
             auto pos = ui::GetWindowPos();
@@ -120,9 +121,9 @@ bool SceneTab::RenderWindow()
             windowFlags_ = ImGuiWindowFlags_NoMove;
 
             // Handle object selection.
-            if (!gizmo_.IsActive() && GetInput()->GetMouseButtonPress(MOUSEB_LEFT))
+            if (!gizmo_.IsActive() && input->GetMouseButtonPress(MOUSEB_LEFT))
             {
-                IntVector2 pos = GetInput()->GetMousePosition();
+                IntVector2 pos = input->GetMousePosition();
                 pos -= rect_.Min();
 
                 Ray cameraRay = GetCamera()->GetScreenRay((float)pos.x_ / rect_.Width(), (float)pos.y_ / rect_.Height());
@@ -142,7 +143,7 @@ bool SceneTab::RenderWindow()
                 if (results.Size())
                 {
                     WeakPtr<Node> clickNode(results[0].drawable_->GetNode());
-                    if (!GetInput()->GetKeyDown(KEY_CTRL))
+                    if (!input->GetKeyDown(KEY_CTRL))
                         UnselectAll();
 
                     ToggleSelection(clickNode);
@@ -155,7 +156,7 @@ bool SceneTab::RenderWindow()
             windowFlags_ = 0;
 
         const auto tabContextMenuTitle = "SceneTab context menu";
-        if (ui::IsDockTabHovered() && GetInput()->GetMouseButtonPress(MOUSEB_RIGHT))
+        if (ui::IsDockTabHovered() && input->GetMouseButtonPress(MOUSEB_RIGHT))
             ui::OpenPopup(tabContextMenuTitle);
         if (ui::BeginPopup(tabContextMenuTitle))
         {
@@ -185,9 +186,11 @@ void SceneTab::LoadScene(const String& filePath)
     if (filePath.Empty())
         return;
 
+    ResourceCache* cache = GetSubsystem<ResourceCache>();
+
     if (filePath.EndsWith(".xml", false))
     {
-        if (scene_->LoadXML(GetResourceCache()->GetResource<XMLFile>(filePath)->GetRoot()))
+        if (scene_->LoadXML(cache->GetResource<XMLFile>(filePath)->GetRoot()))
         {
             path_ = filePath;
             CreateObjects();
@@ -197,7 +200,7 @@ void SceneTab::LoadScene(const String& filePath)
     }
     else if (filePath.EndsWith(".json", false))
     {
-        if (scene_->LoadJSON(GetResourceCache()->GetResource<JSONFile>(filePath)->GetRoot()))
+        if (scene_->LoadJSON(cache->GetResource<JSONFile>(filePath)->GetRoot()))
         {
             path_ = filePath;
             CreateObjects();
@@ -212,7 +215,7 @@ void SceneTab::LoadScene(const String& filePath)
 bool SceneTab::SaveScene(const String& filePath)
 {
     auto resourcePath = filePath.Empty() ? path_ : filePath;
-    auto fullPath = GetResourceCache()->GetResourceFileName(resourcePath);
+    auto fullPath = GetSubsystem<ResourceCache>()->GetResourceFileName(resourcePath);
     File file(context_, fullPath, FILE_WRITE);
     bool result = false;
 
@@ -407,7 +410,8 @@ void SceneTab::RenderSceneNodeTree(Node* node)
 
     if (ui::IsItemClicked(0))
     {
-        if (!GetInput()->GetKeyDown(KEY_CTRL))
+        Input* input = GetSubsystem<Input>();
+        if (!input->GetKeyDown(KEY_CTRL))
             UnselectAll();
         ToggleSelection(node);
     }

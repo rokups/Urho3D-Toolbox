@@ -68,17 +68,20 @@ void SceneEffects::Prepare(bool force)
     auto context = this;
     attributes_.Clear();
 
+    FileSystem* fileSystem = GetSubsystem<FileSystem>();
+    ResourceCache* cache = GetSubsystem<ResourceCache>();
+
     // Update RenderPaths
     {
         renderPaths_.Clear();
         renderPathsEnumNames_.Clear();
         auto defaultRenderPathIndex = -1;
-        for (const auto& dir: GetResourceCache()->GetResourceDirs())
+        for (const auto& dir: cache->GetResourceDirs())
         {
             Vector<String> renderPaths;
             String resourcePath = "RenderPaths/";
             String scanDir = AddTrailingSlash(dir) + resourcePath;
-            GetFileSystem()->ScanDir(renderPaths, scanDir, "*.xml", SCAN_FILES, false);
+            fileSystem->ScanDir(renderPaths, scanDir, "*.xml", SCAN_FILES, false);
             renderPaths_.Push(renderPaths);
         }
 
@@ -134,17 +137,17 @@ void SceneEffects::Prepare(bool force)
     }
 
     effects_.Clear();
-    for (const auto& dir: GetResourceCache()->GetResourceDirs())
+    for (const auto& dir: cache->GetResourceDirs())
     {
         Vector<String> effects;
         String resourcePath = "PostProcess/";
         String scanDir = AddTrailingSlash(dir) + resourcePath;
-        GetFileSystem()->ScanDir(effects, scanDir, "*.xml", SCAN_FILES, false);
+        GetSubsystem<FileSystem>()->ScanDir(effects, scanDir, "*.xml", SCAN_FILES, false);
 
         for (const auto& effectFileName: effects)
         {
             auto effectPath = resourcePath + effectFileName;
-            XMLFile* effect = GetResourceCache()->GetResource<XMLFile>(effectPath);
+            XMLFile* effect = cache->GetResource<XMLFile>(effectPath);
 
             auto root = effect->GetRoot();
             String tag;
@@ -198,10 +201,10 @@ void SceneEffects::Prepare(bool force)
                 auto path = tab_->GetViewport()->GetRenderPath();
                 value = path->IsEnabled(tag);
             };
-            auto setter = [this, tag, fullPath](SceneEffects&, const Variant& value) {
+            auto setter = [this, tag, fullPath, cache](SceneEffects&, const Variant& value) {
                 auto path = tab_->GetViewport()->GetRenderPath();
                 if (!path->IsAdded(tag))
-                    path->Append(GetResourceCache()->GetResource<XMLFile>(fullPath));
+                    path->Append(cache->GetResource<XMLFile>(fullPath));
                 path->SetEnabled(tag, value.GetBool());
                 rebuild_ = true;
                 using namespace EditorSceneEffectsChanged;
@@ -228,7 +231,7 @@ void SceneEffects::Prepare(bool force)
                 }
                 value = 0;
             };
-            auto setter = [this, fullPath](SceneEffects&, const Variant& value) {
+            auto setter = [this, fullPath, cache](SceneEffects&, const Variant& value) {
                 auto path = tab_->GetViewport()->GetRenderPath();
                 const StringVector& allTags = effects_[fullPath].tags_;
 
@@ -239,7 +242,7 @@ void SceneEffects::Prepare(bool force)
                 {
                     String tag = allTags[value.GetInt() - 1];    // Dropdown has extra argument at the start
                     if (!path->IsAdded(tag))
-                        path->Append(GetResourceCache()->GetResource<XMLFile>(fullPath));
+                        path->Append(cache->GetResource<XMLFile>(fullPath));
                     path->SetEnabled(tag, true);
                 }
                 rebuild_ = true;
@@ -384,6 +387,7 @@ void SceneEffects::SaveProject(XMLElement scene)
 
 void SceneEffects::LoadProject(XMLElement scene)
 {
+    ResourceCache* cache = GetSubsystem<ResourceCache>();
     if (auto renderpath = scene.GetChild("renderpath"))
     {
         String path = renderpath.GetAttribute("path");
@@ -401,7 +405,7 @@ void SceneEffects::LoadProject(XMLElement scene)
             URHO3D_LOGERRORF("RenderPath %s was not found.", path.CString());
         }
         else
-            tab_->GetViewport()->SetRenderPath(GetResourceCache()->GetResource<XMLFile>(path));
+            tab_->GetViewport()->SetRenderPath(cache->GetResource<XMLFile>(path));
     }
 
     RenderPath* path = tab_->GetViewport()->GetRenderPath();
@@ -413,7 +417,7 @@ void SceneEffects::LoadProject(XMLElement scene)
 
         if (!path->IsAdded(tagName))
         {
-            path->Append(GetResourceCache()->GetResource<XMLFile>(effectPath));
+            path->Append(cache->GetResource<XMLFile>(effectPath));
             if (effects_.Contains(effectPath))
             {
                 // Some render paths have multiple tags and appending enables them all. Disable all tags

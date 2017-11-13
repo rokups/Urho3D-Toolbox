@@ -43,8 +43,9 @@ bool ResourceBrowserWindow(String& selected, bool* open)
     };
 
     bool result = false;
-    auto context = Context::GetContext();
-    auto fs = context->GetFileSystem();
+    SystemUI* systemUI = static_cast<SystemUI*>(ui::GetIO().UserData);
+    auto fs = systemUI->GetSubsystem<FileSystem>();
+    auto cache = systemUI->GetSubsystem<ResourceCache>();
     if (ui::BeginDock("Resources", open))
     {
         State* state = ui::GetUIState<State>();
@@ -52,7 +53,7 @@ bool ResourceBrowserWindow(String& selected, bool* open)
         Vector<String> mergedDirs;
         Vector<String> mergedFiles;
 
-        for (const auto& dir: context->GetResourceCache()->GetResourceDirs())
+        for (const auto& dir: cache->GetResourceDirs())
         {
             Vector<String> items;
             fs->ScanDir(items, dir + state->path, "", SCAN_FILES, false);
@@ -119,8 +120,8 @@ bool ResourceBrowserWindow(String& selected, bool* open)
                 break;
             }
 
-            if (ui::IsItemHovered() && ui::IsMouseDragging() && !context->GetSubsystem<SystemUI>()->HasDragData())
-                context->GetSubsystem<SystemUI>()->SetDragData(state->path + item);
+            if (ui::IsItemHovered() && ui::IsMouseDragging() && !systemUI->HasDragData())
+                systemUI->SetDragData(state->path + item);
         }
     }
     ui::EndDock();
