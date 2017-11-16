@@ -416,6 +416,14 @@ void SceneTab::RenderSceneNodeTree(Node* node)
         flags |= ImGuiTreeNodeFlags_Selected;
 
     auto opened = ui::TreeNodeEx(name.CString(), flags);
+    if (!opened)
+    {
+        // If TreeNode above is opened, it pushes it's label as an ID to the stack. However if it is not open then no
+        // ID is pushed. This creates a situation where context menu is not properly attached to said tree node due to
+        // missing ID on the stack. To correct this we ensure that ID is always pushed. This allows us to show context
+        // menus even for closed tree nodes.
+        ui::PushID(name.CString());
+    }
 
     if (ui::IsItemClicked(0))
     {
@@ -423,6 +431,22 @@ void SceneTab::RenderSceneNodeTree(Node* node)
         if (!input->GetKeyDown(KEY_CTRL))
             UnselectAll();
         ToggleSelection(node);
+    }
+    else if (ui::IsItemClicked(2))
+    {
+        UnselectAll();
+        ToggleSelection(node);
+        ui::OpenPopup("Node context menu");
+    }
+
+    if (ui::BeginPopup("Node context menu"))
+    {
+        if (ui::MenuItem("Remove"))
+        {
+            Unselect(node);
+            node->Remove();
+        }
+        ui::EndPopup();
     }
 
     if (opened)
@@ -433,11 +457,26 @@ void SceneTab::RenderSceneNodeTree(Node* node)
                 continue;
 
             bool selected = selectedComponent_ == component;
-            if (ui::Selectable(component->GetTypeName().CString(), selected))
+            selected = ui::Selectable(component->GetTypeName().CString(), selected);
+
+            if (ui::IsItemClicked(2))
+            {
+                selected = true;
+                ui::OpenPopup("Component context menu");
+            }
+
+            if (selected)
             {
                 UnselectAll();
                 ToggleSelection(node);
                 selectedComponent_ = component;
+            }
+
+            if (ui::BeginPopup("Component context menu"))
+            {
+                if (ui::MenuItem("Remove"))
+                    component->Remove();
+                ui::EndPopup();
             }
         }
 
@@ -445,6 +484,8 @@ void SceneTab::RenderSceneNodeTree(Node* node)
             RenderSceneNodeTree(child);
         ui::TreePop();
     }
+    else
+        ui::PopID();
 }
 
 void SceneTab::LoadProject(XMLElement scene)
