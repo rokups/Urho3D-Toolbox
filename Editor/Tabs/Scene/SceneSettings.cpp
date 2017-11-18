@@ -22,7 +22,7 @@
 
 #include "SceneSettings.h"
 #include "SceneTab.h"
-#include "EditorEvents.h"
+#include "Editor/EditorEvents.h"
 
 
 namespace Urho3D

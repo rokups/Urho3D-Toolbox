@@ -21,7 +21,7 @@
 //
 
 #include "SceneTab.h"
-#include "EditorEvents.h"
+#include "Editor/EditorEvents.h"
 #include "SceneSettings.h"
 #include <Toolbox/Scene/DebugCameraController.h>
 #include <imgui/imgui_internal.h>
