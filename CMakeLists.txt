@@ -17,6 +17,7 @@ set (CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake/Modules)
 include (UrhoCommon)
 
 
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 create_symlink(${URHO3D_HOME}/bin/Autoload ${CMAKE_BINARY_DIR}/bin/Autoload)
 create_symlink(${URHO3D_HOME}/bin/Data ${CMAKE_BINARY_DIR}/bin/Data)
 create_symlink(${URHO3D_HOME}/bin/CoreData ${CMAKE_BINARY_DIR}/bin/CoreData)
