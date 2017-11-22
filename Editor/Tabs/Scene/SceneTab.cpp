@@ -87,21 +87,6 @@ bool SceneTab::RenderWindowContent()
 
     gizmo_.ManipulateSelection(view_.GetCamera());
 
-    // Update scene view rect according to window position
-    // if (!input->GetMouseButtonDown(MOUSEB_LEFT))
-    {
-        auto titlebarHeight = ui::GetCurrentContext()->CurrentWindow->TitleBarHeight();
-        auto pos = ui::GetWindowPos();
-        pos.y += titlebarHeight;
-        auto size = ui::GetWindowSize();
-        size.y -= titlebarHeight;
-        if (size.x > 0 && size.y > 0)
-        {
-            IntRect newRect(ToIntVector2(pos), ToIntVector2(pos + size));
-            SetSize(newRect);
-        }
-    }
-
     if (ui::IsItemHovered())
     {
         // Prevent dragging window when scene view is clicked.
