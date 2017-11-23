@@ -22,6 +22,7 @@
 
 #include "Editor.h"
 #include "EditorEvents.h"
+#include "EditorIconCache.h"
 #include "Editor/Tabs/Scene/SceneTab.h"
 #include "Editor/Tabs/Scene/SceneSettings.h"
 #include <Toolbox/IO/ContentUtilities.h>
@@ -75,6 +76,8 @@ void Editor::Start()
 {
     context_->RegisterFactory<SystemUI>();
     context_->RegisterSubsystem(new SystemUI(context_));
+    context_->RegisterFactory<EditorIconCache>();
+    context_->RegisterSubsystem(new EditorIconCache(context_));
 
     Input* input = GetSubsystem<Input>();
     input->SetMouseMode(MM_ABSOLUTE);
